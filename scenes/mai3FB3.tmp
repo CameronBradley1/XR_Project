@@ -133,7 +133,7 @@ transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, -0.0515784, 0.238985
 mesh = SubResource("CapsuleMesh_klall")
 
 [node name="scope" type="XRController3D" parent="player"]
-transform = Transform3D(0.999966, -0.00829022, 0, 0.00829022, 0.999966, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(0.999966, -0.00829022, 0, 0.00829022, 0.999966, 0, 0, 0, 1, 0.437563, 0, 0)
 tracker = &"right_hand"
 script = ExtResource("4_yd7qh")
 

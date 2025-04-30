@@ -35,7 +35,8 @@ func switch_controller() -> void:
 	
 func create_duplicate(original: Node3D) -> Node3D:
 	var copy = original.duplicate()
-	copy.transform = original.global_transform
+	copy.global_transform = original.global_transform
+	#print(copy.transform)
 	original.get_parent().get_parent().get_parent().add_child(copy)
 	return copy
 	

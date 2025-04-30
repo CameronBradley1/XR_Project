@@ -32,9 +32,11 @@ func _process(delta: float) -> void:
 			switch_clicked = true
 	else:
 		if switch_clicked == true:
-			var average_dis = scope.get_average_distance()
+			var result = scope.get_average_distance()
 			var dupli = player.create_duplicate(scope) 
-			dupli.create_view(average_dis - (average_dis / 10))
+			#print(dupli.global_transform.origin)
+			dupli.create_view(result.distance, result.avg_pos, dupli.global_transform)
+			#dupli.create_view(average_dis - (average_dis / 10))
 			queue.append(dupli)
 			
 			

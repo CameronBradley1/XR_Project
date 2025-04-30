@@ -19,43 +19,126 @@ func _on_body_exited(body):
 		#print(objects_inside.size())
 
 
-func get_average_distance() -> float:
+func get_average_distance() -> Dictionary:
+	var main = get_node("/root/main")
 	if objects_inside.size() == 0:
-		#print(objects_inside.size())
-		return -1.0
+		#print(objects_inside.size())jo
+		return {"distance": -1.0, "avg_pos": global_transform.origin}
 
 	var sum_pos = Vector3.ZERO
 	for obj in objects_inside:
-		sum_pos += obj.global_transform.origin
+		for child in obj.get_children():
+			if child is CollisionShape3D:
+				sum_pos += child.global_transform.origin
+	
 
 	var avg_pos = sum_pos / objects_inside.size()
 	var parent_pos = global_transform.origin
 	var distance = parent_pos.distance_to(avg_pos)
-	return parent_pos.distance_to(avg_pos)
-	
-func create_view(dist):
-	var world := World3D.new()
-	var vp := SubViewport.new()
-	vp.name = "preview"
-	vp.size = Vector2i(512,512)
-	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	vp.world_3d = world
-	#vp.disable_3d = false  # Enable 3D rendering
-	#vp.world_3d = get_viewport().world_3d
-	#vp.disable_input = true
-	#vp.transparent_bg = true
-	add_child(vp)
-	
-	var cam := Camera3D.new()
-	cam.current = true
-	vp.add_child(cam)
-	
-	#var dist := 10.0
-	var fwd := -global_transform.basis.z.normalized()
-	cam.global_transform.origin = global_transform.origin + fwd * dist
-	cam.look_at(global_transform.origin, Vector3.UP)
+	#var debug_mesh := MeshInstance3D.new()
+	#debug_mesh.mesh = SphereMesh.new()
+	#debug_mesh.scale = Vector3(0.1, 0.1, 0.1)
 
-	var tex_rect := TextureRect.new()
-	tex_rect.texture = vp.get_texture()
-	tex_rect.custom_minimum_size = Vector2(256, 256)
-	get_tree().root.add_child(tex_rect)  # Shows it in the main UI
+	#var mat := StandardMaterial3D.new()
+	#mat.albedo_color = Color.YELLOW
+	#debug_mesh.material_override = mat
+	#print("before assigning")
+	#print(avg_pos)
+	#debug_mesh.global_transform = Transform3D(Basis(), avg_pos)
+	#main.add_child(debug_mesh)
+	#debug_mesh.global_transform.origin = avg_pos
+	
+	#print(debug_mesh.global_transform.origin)
+	
+	return {"distance": distance, "avg_pos": avg_pos}
+
+
+func create_view(dist: float, avg_pos: Vector3, transform)-> void:
+	var new_origin := XROrigin3D.new()
+	var new_camera := Camera3D.new()
+	new_camera.fov = 70.0
+	
+	new_origin.name = "EyesOrigin"
+	#add_child(new_origin)
+	#new_origin.add_child(new_camera)
+	var dir_to_target = (transform.origin - avg_pos).normalized()
+
+	var new_pos = transform.origin.lerp(avg_pos, .9)
+	'''
+	var screen := MeshInstance3D.new()
+	screen.mesh = create_circle(10, 32)
+	screen.scale = Vector3(10,10,1)
+	screen.material_override = StandardMaterial3D.new()
+	add_child(screen)
+	
+	new_camera.global_transform.origin = new_pos
+	screen.global_transform.origin = transform.origin + Vector3(0,0,-5)
+	
+	var viewport := SubViewport.new()
+	viewport.name = "Eyes2"
+	viewport.size = Vector2i(512,512)
+	viewport.disable_3d = false
+	viewport.get_world_3d()
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	new_camera.current = true
+	screen.add_child(viewport)
+	viewport.add_child(new_camera)
+	screen.look_at(global_transform.origin, Vector3.UP)
+	'''
+	
+	#var new_transform = transform
+	#new_transform.origin = new_pos
+	#print(new_pos)
+	#var basis = Transform3D().looking_at(avg_pos - new_pos, Vector3.UP).basis
+	#new_origin.global_transform = new_transform
+
+	#var debug_mesh := MeshInstance3D.new()
+	#debug_mesh.mesh = SphereMesh.new()  # You can also use CubeMesh, etc.
+	#debug_mesh.scale = Vector3(0.1, 0.1, 0.1)  # Scale it down so it's small
+	#debug_mesh.material_override = StandardMaterial3D.new()  # Optionally set a color/material
+	#add_child(debug_mesh)  # Add it to the scene so it appears
+	#debug_mesh.global_transform.origin = new_pos
+	#new_origin.global_transform.origin = new_pos
+	#new_camera.look_at(dir_to_target, Vector3.UP)
+	#print(avg_pos)
+	#print(debug_mesh.global_transform)
+
+
+	var viewport := SubViewport.new()
+	viewport.name = "EyesViewport"
+	viewport.size = Vector2i(512, 512)
+	#viewport.usage = SubViewport.USAGE_3D
+	viewport.disable_3d = false
+	viewport.world_3d = get_world_3d()
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	#viewport.render_target_v_flip = true  # flip for correct orientation
+	#viewport.add_child(new_origin)
+	new_camera.current = true
+	
+	
+	var screen := MeshInstance3D.new()
+	#screen.mesh = create_circle(10.0, 32)
+	screen.mesh = QuadMesh.new()
+	screen.mesh.size = Vector2(1.0, 1.0)
+	#var new_pos = transform.origin.lerp(avg_pos, .9)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = viewport.get_texture()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	screen.material_override = mat
+	add_child(screen)
+	screen.add_child(viewport)
+	viewport.add_child(new_camera)
+	new_camera.global_transform.origin = new_pos
+	var offset = dir_to_target * 0.03
+	screen.global_transform.origin = transform.origin + offset
+	screen.global_transform.basis = transform.basis
+	#screen.mesh.global_transform.origin = transform.origin
+	#print("picture position: ", screen.mesh.transform.origin)
+	screen.look_at(global_transform.origin, Vector3.UP)
+	print("Viewport texture valid:", viewport.get_texture() != null)
+	print("position of circle: ", screen.global_transform.origin)
+	print("Camera current:", new_camera.current)
+	
+
+	
+	
