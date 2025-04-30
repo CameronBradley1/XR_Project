@@ -33,11 +33,12 @@ func switch_controller() -> void:
 	right_node.visible = !right_node.visible
 	scope_node.visible = !scope_node.visible
 	
-func create_duplicate(original: Node3D) -> Node3D:
+func create_duplicate(original: Node3D, forward) -> Node3D:
 	var copy = original.duplicate()
 	copy.global_transform = original.global_transform
 	#print(copy.transform)
 	original.get_parent().get_parent().get_parent().add_child(copy)
+	copy.global_transform.origin -= forward * 1
 	return copy
 	
 func remove_last(copy: Node3D) -> void:

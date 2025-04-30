@@ -180,7 +180,7 @@ transform = Transform3D(-0.687341, 0.240354, -0.685414, 0.266587, 0.961283, 0.06
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -139.382, -18.4573, -322.149)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Boundaries/boundary"]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -7.02238, 3.23153, 3.8025)
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 3.23153, 3.8025)
 shape = SubResource("BoxShape3D_h40gl")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Boundaries/boundary/CollisionShape3D"]

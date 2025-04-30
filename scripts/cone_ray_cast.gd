@@ -35,20 +35,6 @@ func get_average_distance() -> Dictionary:
 	var avg_pos = sum_pos / objects_inside.size()
 	var parent_pos = global_transform.origin
 	var distance = parent_pos.distance_to(avg_pos)
-	#var debug_mesh := MeshInstance3D.new()
-	#debug_mesh.mesh = SphereMesh.new()
-	#debug_mesh.scale = Vector3(0.1, 0.1, 0.1)
-
-	#var mat := StandardMaterial3D.new()
-	#mat.albedo_color = Color.YELLOW
-	#debug_mesh.material_override = mat
-	#print("before assigning")
-	#print(avg_pos)
-	#debug_mesh.global_transform = Transform3D(Basis(), avg_pos)
-	#main.add_child(debug_mesh)
-	#debug_mesh.global_transform.origin = avg_pos
-	
-	#print(debug_mesh.global_transform.origin)
 	
 	return {"distance": distance, "avg_pos": avg_pos}
 
@@ -56,7 +42,7 @@ func get_average_distance() -> Dictionary:
 func create_view(dist: float, avg_pos: Vector3, transform)-> void:
 	var new_origin := XROrigin3D.new()
 	var new_camera := Camera3D.new()
-	new_camera.fov = 70.0
+	new_camera.fov = 180.0
 	
 	new_origin.name = "EyesOrigin"
 	#add_child(new_origin)
@@ -64,45 +50,7 @@ func create_view(dist: float, avg_pos: Vector3, transform)-> void:
 	var dir_to_target = (transform.origin - avg_pos).normalized()
 
 	var new_pos = transform.origin.lerp(avg_pos, .9)
-	'''
-	var screen := MeshInstance3D.new()
-	screen.mesh = create_circle(10, 32)
-	screen.scale = Vector3(10,10,1)
-	screen.material_override = StandardMaterial3D.new()
-	add_child(screen)
 	
-	new_camera.global_transform.origin = new_pos
-	screen.global_transform.origin = transform.origin + Vector3(0,0,-5)
-	
-	var viewport := SubViewport.new()
-	viewport.name = "Eyes2"
-	viewport.size = Vector2i(512,512)
-	viewport.disable_3d = false
-	viewport.get_world_3d()
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	new_camera.current = true
-	screen.add_child(viewport)
-	viewport.add_child(new_camera)
-	screen.look_at(global_transform.origin, Vector3.UP)
-	'''
-	
-	#var new_transform = transform
-	#new_transform.origin = new_pos
-	#print(new_pos)
-	#var basis = Transform3D().looking_at(avg_pos - new_pos, Vector3.UP).basis
-	#new_origin.global_transform = new_transform
-
-	#var debug_mesh := MeshInstance3D.new()
-	#debug_mesh.mesh = SphereMesh.new()  # You can also use CubeMesh, etc.
-	#debug_mesh.scale = Vector3(0.1, 0.1, 0.1)  # Scale it down so it's small
-	#debug_mesh.material_override = StandardMaterial3D.new()  # Optionally set a color/material
-	#add_child(debug_mesh)  # Add it to the scene so it appears
-	#debug_mesh.global_transform.origin = new_pos
-	#new_origin.global_transform.origin = new_pos
-	#new_camera.look_at(dir_to_target, Vector3.UP)
-	#print(avg_pos)
-	#print(debug_mesh.global_transform)
-
 
 	var viewport := SubViewport.new()
 	viewport.name = "EyesViewport"
@@ -120,6 +68,12 @@ func create_view(dist: float, avg_pos: Vector3, transform)-> void:
 	#screen.mesh = create_circle(10.0, 32)
 	screen.mesh = QuadMesh.new()
 	screen.mesh.size = Vector2(1.0, 1.0)
+	var object := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	shape.shape = BoxShape3D.new()
+	shape.shape.size = Vector3(1.0, 1.0, 1.0)
+	object.add_child(shape)
+	screen.add_child(object)
 	#var new_pos = transform.origin.lerp(avg_pos, .9)
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = viewport.get_texture()
@@ -128,13 +82,22 @@ func create_view(dist: float, avg_pos: Vector3, transform)-> void:
 	add_child(screen)
 	screen.add_child(viewport)
 	viewport.add_child(new_camera)
+	#var original = Node3D.new()
+	#screen.add_child(original)
+	#original.globale_transform = new_camera.global_transform
 	new_camera.global_transform.origin = new_pos
+	var temp = MeshInstance3D.new()
+	temp.mesh = SphereMesh.new()
+	temp.scale = Vector3(.01,.01,.01)
+	temp.material_override = StandardMaterial3D.new()
+	screen.add_child(temp)
 	var offset = dir_to_target * 0.03
 	screen.global_transform.origin = transform.origin + offset
 	screen.global_transform.basis = transform.basis
 	#screen.mesh.global_transform.origin = transform.origin
 	#print("picture position: ", screen.mesh.transform.origin)
 	screen.look_at(global_transform.origin, Vector3.UP)
+	object.add_to_group("screen")
 	print("Viewport texture valid:", viewport.get_texture() != null)
 	print("position of circle: ", screen.global_transform.origin)
 	print("Camera current:", new_camera.current)
