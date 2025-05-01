@@ -9,8 +9,6 @@ var queue: Array = []
 func _ready() -> void:
 	pass
 
-
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	var scope = get_node("/root/main/player/scope/lens_node")
@@ -19,8 +17,13 @@ func _process(delta: float) -> void:
 	var trigger = get_input("trigger_click")
 	var switch = get_input("ax_button")
 	var switch2 = get_input("by_button")
+	
 	if trigger == true:
 		if trigger_clicked == false:
+			# Get the currently highlighted object
+			var highlighted_object = ray.last_hovered
+			if highlighted_object && highlighted_object.has_method("toggle_selection"):
+				highlighted_object.toggle_selection()
 			ray.check()
 			trigger_clicked = true
 	else:
@@ -35,15 +38,9 @@ func _process(delta: float) -> void:
 			var forward = self.global_transform.basis.z.normalized()
 			var result = scope.get_average_distance()
 			var dupli = player.create_duplicate(scope, forward) 
-			#print(dupli.global_transform.origin)
 			dupli.create_view(result.distance, result.avg_pos, dupli.global_transform)
-			#dupli.create_view(average_dis - (average_dis / 10))
 			queue.append(dupli)
-			
-			
-			#print(average)
 			player.switch_controller()
-			#Need to set microscope
 		switch_clicked = false
 		
 	if switch2 == true:
