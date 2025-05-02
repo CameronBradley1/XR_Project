@@ -1,6 +1,7 @@
 ## ZLens : Zoom Lens for Precise Distant Object Interaction
 <br>
-## Description <br>
+## Description 
+<br>
 The following demo includes the implementation of ZLens, a method for selection of objects at any distance in a 3D space, implemented in Godot 4 developed on the Meta Quest 3. 
 ZLens is inspired by a combination of the standard Ray-Cast implementation for object selection, and the zoom features presented in SQUAD. 
 ZLens addresses the imprecision of ray-casting at long distances and cluttered environments. By holding down the 'a' button our code creates a magnifying glass and switches from
